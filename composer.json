@@ -1,0 +1,21 @@
+{
+    "name": "zdhxiong/aliless-framework",
+    "description": "基于阿里云服务的 ServerLess 框架",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "zdhxiong",
+            "email": "zdhxiong@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2",
+        "ext-json": "*",
+        "psr/log": "^1.0",
+        "pimple/pimple": "^3.2"
+    },
+    "suggest": {
+        "ringcentral/psr7": "使用 HTTP 触发器时，可以选择安装该库，来获得 IDE 的代码提示"
+    }
+}
