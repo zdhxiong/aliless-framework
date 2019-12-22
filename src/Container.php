@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Aliless;
 
-use Aliless\Dependencies\Logger;
-use Aliless\Dependencies\View;
-
 /**
  * @property-read mixed                      $event
  * @property-read array                      $context
- * @property-read \Aliless\Dependencies\View $view
+ * @property-read \Aliless\View              $view
  * @property-read \Psr\Log\LoggerInterface   $logger
  */
 class Container extends \Pimple\Container

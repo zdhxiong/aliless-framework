@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aliless\Dependencies;
+namespace Aliless;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
