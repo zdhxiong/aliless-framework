@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Aliless;
+namespace Aliless\Library;
 
+use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 
@@ -41,7 +42,7 @@ class Logger implements LoggerInterface
      *
      * @return void
      *
-     * @throws \Psr\Log\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function log($level, $message, array $context = []): void
     {

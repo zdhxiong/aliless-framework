@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aliless;
+namespace Aliless\Library;
 
 class View
 {

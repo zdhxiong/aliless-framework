@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Aliless;
 
-use Psr\Http\Message\ServerRequestInterface;
-
 class App
 {
     /**
@@ -16,69 +14,23 @@ class App
     protected $container;
 
     /**
-     * 是否是 API 网关事件源
-     *
-     * @var bool
+     * @param string    $event     来自 API 网关的参数
+     * @param array     $context   函数的运行时信息
+     * @param Container $container 如果自己实现了容器实例，把实例传入
      */
-    protected $isApiEvent = false;
-
-    /**
-     * 是否是 HTTP 触发器事件源
-     *
-     * @var bool
-     */
-    protected $isHttpEvent = false;
-
-    /**
-     * @param string|ServerRequestInterface $event
-     * @param array                         $context
-     */
-    public function __construct($event, array $context)
+    public function __construct(string $event, array $context, Container $container = null)
     {
-        if ($event instanceof ServerRequestInterface) {
-            $this->isHttpEvent = true;
+        if ($container) {
+            $container->offsetSet('event', new Event($event));
+            $container->offsetSet('context', new Context($context));
+
+            $this->container = $container;
         } else {
-            $eventDecode = json_decode($event, true);
+            $this->container = new Container([
+                'event' => new Event($event),
+                'context' => new Context($context),
+            ]);
         }
-
-        if (isset($eventDecode['isBase64Encoded'])) {
-            $this->isApiEvent = true;
-            $eventDecode = $this->parseApiEventBody($eventDecode);
-        }
-
-        $this->container = new Container([
-            'event' => $eventDecode ?? $event,
-            'context' => $context,
-        ]);
-    }
-
-    /**
-     * 获取容器
-     *
-     * @return Container
-     */
-    public function getContainer(): Container
-    {
-        return $this->container;
-    }
-
-    /**
-     * 解析 API 网关事件源中的 body
-     *
-     * @param  array $event
-     * @return array
-     */
-    protected function parseApiEventBody(array $event): array
-    {
-        if ($event['isBase64Encoded']) {
-            $event['body'] = base64_decode($event['body']);
-        }
-
-        if (strstr($event['headers']['Content-Type'], 'application/json')) {
-            $event['body'] = json_decode($event['body'], true);
-        }
-
-        return $event;
     }
 
     /**
@@ -88,22 +40,15 @@ class App
      */
     protected function runController()
     {
-        $event = $this->container->event;
+        $pathParameters = $this->container->event->pathParameters;
+        $queryParameters = $this->container->event->queryParameters;
 
-        $queryMethod = $event['queryParameters']['method'] ?? '';
-        [$controllerName, $actionName] = explode('.', $queryMethod);
+        [$controllerName, $actionName] = explode('.', $queryParameters['method']);
 
-        $controllerPath = '\App\\Controller\\' . ($controllerName ? $controllerName : 'Handler');
+        $controllerPath = '\App\\Controller\\' . $controllerName;
         $controller = new $controllerPath($this->container);
 
-        // 对于 API 网关触发器事件，把 pathParameters 作为方法参数传入
-        $actionParameters = $this->isApiEvent ? $event['pathParameters'] : [];
-
-        $responseBody = $actionName
-            ? call_user_func([$controller, $actionName], ...array_values($actionParameters))
-            : $controller(...array_values($actionParameters));
-
-        return $responseBody;
+        return call_user_func([$controller, $actionName], ...array_values($pathParameters));
     }
 
     /**
@@ -115,14 +60,6 @@ class App
     {
         $responseBody = $this->runController();
 
-        if ($this->isApiEvent) {
-            return ResponseEmitter::emitForApiEvent($responseBody);
-        }
-
-        if ($this->isHttpEvent) {
-            return ResponseEmitter::emitForHttpEvent($responseBody);
-        }
-
-        return null;
+        return ResponseEmitter::emit($responseBody);
     }
 }

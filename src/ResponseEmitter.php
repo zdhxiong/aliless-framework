@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Aliless;
 
-use Psr\Http\Message\ResponseInterface;
-
 class ResponseEmitter
 {
     /**
@@ -33,7 +31,7 @@ class ResponseEmitter
      * @param  mixed  $data
      * @return string
      */
-    public static function emitForApiEvent($data): string
+    public static function emit($data): string
     {
         $response = self::getResponse($data);
 
@@ -43,26 +41,5 @@ class ResponseEmitter
             'headers' => $response->getHeaders(),
             'body' => base64_encode($response->getBody()),
         ]);
-    }
-
-    /**
-     * 生成 HTTP 触发器事件源的响应
-     *
-     * @param  mixed             $data
-     * @return ResponseInterface
-     */
-    public static function emitForHttpEvent($data): ResponseInterface
-    {
-        if ($data instanceof ResponseInterface) {
-            return $data;
-        }
-
-        $response = self::getResponse($data);
-
-        return new \RingCentral\Psr7\Response(
-            $response->getStatus(),
-            $response->getHeaders(),
-            $response->getBody()
-        );
     }
 }
