@@ -66,7 +66,10 @@ class Event
             $event['body'] = base64_decode($event['body']);
         }
 
-        if (strstr($event['headers']['Content-Type'], 'application/json')) {
+        if (
+            isset($event['headers']['Content-Type']) &&
+            strstr($event['headers']['Content-Type'], 'application/json')
+        ) {
             $event['body'] = json_decode($event['body'], true);
         }
 

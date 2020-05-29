@@ -60,12 +60,20 @@ class Service
 
     public function __construct(array $service)
     {
-        $this->name = $service['name'];
-        $this->logProject = $service['logProject'];
-        $this->logStore = $service['logStore'];
-        $this->qualifier = $service['qualifier'];
-        $this->versionId = $service['versionId'];
-        $this->initializer = $service['initializer'];
-        $this->initializationTimeout = $service['initializationTimeout'];
+        $keys = [
+            'name',
+            'logProject',
+            'logStore',
+            'qualifier',
+            'versionId',
+            'initializer',
+            'initializationTimeout',
+        ];
+
+        foreach ($keys as $key) {
+            if (isset($service[$key])) {
+                $this->{$key} = $service[$key];
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ class View
      *
      * @var array
      */
-    protected $attributes;
+    protected $attributes = [];
 
     /**
      * 获取模板数据
